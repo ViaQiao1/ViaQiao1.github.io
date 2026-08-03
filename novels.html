@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小说作品 - 纯爱宇宙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e8a4c9;
+            --primary-light: #f5d5e5;
+            --primary-dark: #d88fb0;
+            --secondary: #7eb8da;
+            --text: #333;
+            --text-light: #666;
+            --bg: #fdf6f9;
+            --white: #ffffff;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .novel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .novel-item {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .novel-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .novel-cover {
+            width: 120px;
+            height: 160px;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .novel-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .novel-info h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .novel-desc {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+            flex: 1;
+        }
+
+        .novel-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.8rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* 小说阅读模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--primary-dark);
+        }
+
+        .reader-container {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .reader-title {
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .volume-header {
+            padding: 0.5rem 0.8rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            border-radius: 6px;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .volume-header:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .volume-chapters {
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid var(--primary-light);
+            display: block;
+        }
+
+        .volume-chapters.collapsed {
+            display: none;
+        }
+
+        .chapter-list {
+            background: var(--primary-light);
+            border-radius: var(--radius);
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .chapter-item {
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text);
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+
+        .chapter-item:hover {
+            background: var(--white);
+            color: var(--primary-dark);
+        }
+
+        .chapter-item.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .chapter-content {
+            background: var(--primary-light);
+            border-radius: var(--radius);
+            padding: 2rem;
+            font-size: 1.1rem;
+            line-height: 2;
+            min-height: 300px;
+        }
+
+        .chapter-content h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .chapter-content p {
+            margin-bottom: 1.5rem;
+            text-indent: 2em;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--primary);
+        }
+
+        .nav-btn {
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 2px solid var(--primary);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: var(--white);
+            color: var(--text-light);
+        }
+
+        .word-count {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 768px) {
+            .novel-item {
+                flex-direction: column;
+            }
+
+            .novel-cover {
+                width: 100%;
+                height: 150px;
+            }
+
+            .reader-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chapter-list {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index-main.html" class="back-btn">← 返回主页</a>
+
+    <div class="page-header">
+        <h1>小说作品</h1>
+        <p>每一章都是一段心灵的旅程</p>
+    </div>
+
+    <div class="novel-list" id="novelList"></div>
+
+    <!-- 小说阅读模态框 -->
+    <div class="modal" id="novelModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h2 class="reader-title" id="readerTitle"></h2>
+            <div class="reader-container">
+                <div class="chapter-list" id="chapterList"></div>
+                <div>
+                    <div class="chapter-content" id="chapterContent"></div>
+                    <div class="nav-buttons">
+                        <button class="nav-btn" id="prevBtn" onclick="prevChapter()" disabled>← 上一章</button>
+                        <button class="nav-btn" id="nextBtn" onclick="nextChapter()" disabled>下一章 →</button>
+                    </div>
+                    <div class="word-count" id="wordCount"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('pure_love_universe_access') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // ==================== 小说目录数据结构 ====================
+        // 使用说明：
+        // 1. 修改 title、description、totalWords、status 为你的小说信息
+        // 2. 在 volumes 中添加/修改卷名和章节
+        // 3. 每个章节的 file 对应 chapters/ 目录下的 HTML 文件
+        // 4. 章节文件格式参考 chapters/template.html
+        
+        const novelsData = {
+            1: {
+                title: "你的小说标题",
+                description: "在这里写你的小说简介...",
+                totalWords: 275327,
+                status: "连载中",
+                volumes: [
+                    {
+                        title: "第一卷：卷名",
+                        chapters: [
+                            { title: "第一章：章节标题", file: "v1-c01.html" },
+                            { title: "第二章：章节标题", file: "v1-c02.html" },
+                            { title: "第三章：章节标题", file: "v1-c03.html" }
+                        ]
+                    },
+                    {
+                        title: "第二卷：卷名",
+                        chapters: [
+                            { title: "第四章：章节标题", file: "v2-c01.html" },
+                            { title: "第五章：章节标题", file: "v2-c02.html" },
+                            { title: "第六章：章节标题", file: "v2-c03.html" }
+                        ]
+                    },
+                    {
+                        title: "第三卷：卷名",
+                        chapters: [
+                            { title: "第七章：章节标题", file: "v3-c01.html" },
+                            { title: "第八章：章节标题", file: "v3-c02.html" },
+                            { title: "第九章：章节标题", file: "v3-c03.html" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        let currentNovel = null;
+        let currentVolumeIndex = 0;
+        let currentChapterIndex = 0;
+        let allChapters = [];
+        let currentFlatIndex = 0;
+
+        // ==================== 初始化小说列表 ====================
+        function initNovelList() {
+            const list = document.getElementById('novelList');
+            list.innerHTML = Object.entries(novelsData).map(([id, novel]) => {
+                const totalChapters = novel.volumes.reduce((sum, vol) => sum + vol.chapters.length, 0);
+                return `
+                    <div class="novel-item" onclick="openNovel(${id})">
+                        <div class="novel-cover">📖</div>
+                        <div class="novel-info">
+                            <h3>${novel.title}</h3>
+                            <p class="novel-desc">${novel.description}</p>
+                            <div class="novel-meta">
+                                <span>字数：${novel.totalWords.toLocaleString()}</span>
+                                <span>章节：${totalChapters}</span>
+                                <span>状态：${novel.status}</span>
+                            </div>
+                            <button class="btn">开始阅读</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== 打开小说阅读器 ====================
+        function openNovel(novelId) {
+            currentNovel = novelId;
+            const novel = novelsData[novelId];
+            if (!novel) return;
+
+            document.getElementById('readerTitle').textContent = novel.title;
+            document.getElementById('wordCount').textContent = `总字数：${novel.totalWords.toLocaleString()} 字`;
+
+            // 扁平化所有章节用于前后翻页
+            allChapters = [];
+            novel.volumes.forEach((volume, volIndex) => {
+                volume.chapters.forEach((chapter, chapIndex) => {
+                    allChapters.push({
+                        volumeIndex: volIndex,
+                        chapterIndex: chapIndex,
+                        title: chapter.title,
+                        file: chapter.file
+                    });
+                });
+            });
+
+            // 生成章节列表（带卷分组）
+            const chaptersContainer = document.getElementById('chapterList');
+            chaptersContainer.innerHTML = novel.volumes.map((volume, volIndex) => `
+                <div>
+                    <div class="volume-header" onclick="toggleVolume(${volIndex})">
+                        <span>${volume.title}</span>
+                        <span class="volume-arrow">▼</span>
+                    </div>
+                    <div class="volume-chapters" id="vol-${volIndex}">
+                        ${volume.chapters.map((chapter, chapIndex) => {
+                            const flatIndex = allChapters.findIndex(c => 
+                                c.volumeIndex === volIndex && c.chapterIndex === chapIndex
+                            );
+                            return `
+                                <div class="chapter-item" onclick="loadChapter(${flatIndex})" id="chap-${flatIndex}">
+                                    ${chapter.title}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // 加载第一章
+            if (allChapters.length > 0) {
+                loadChapter(0);
+            }
+
+            document.getElementById('novelModal').classList.add('active');
+        }
+
+        // ==================== 切换卷的展开/收起 ====================
+        function toggleVolume(volIndex) {
+            const element = document.getElementById(`vol-${volIndex}`);
+            element.classList.toggle('collapsed');
+        }
+
+        // ==================== 加载章节内容（按需加载） ====================
+        function loadChapter(flatIndex) {
+            const chapter = allChapters[flatIndex];
+            if (!chapter) return;
+
+            currentFlatIndex = flatIndex;
+
+            // 更新章节激活状态
+            document.querySelectorAll('.chapter-item').forEach((item, i) => {
+                item.classList.toggle('active', i === flatIndex);
+            });
+
+            // 显示加载状态
+            const contentContainer = document.getElementById('chapterContent');
+            contentContainer.innerHTML = `<div class="loading">⏳ 正在加载章节内容...</div>`;
+
+            // 更新翻页按钮状态
+            updateNavButtons();
+
+            // 动态加载章节文件
+            fetch(`chapters/${chapter.file}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('章节文件未找到');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // 提取 body 内容
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const bodyContent = doc.body.innerHTML;
+                    
+                    contentContainer.innerHTML = bodyContent;
+                })
+                .catch(error => {
+                    console.error('加载章节失败:', error);
+                    contentContainer.innerHTML = `
+                        <div class="loading">
+                            ❌ 章节加载失败<br>
+                            请检查文件: chapters/${chapter.file} 是否存在
+                        </div>
+                    `;
+                });
+        }
+
+        // ==================== 更新翻页按钮状态 ====================
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentFlatIndex <= 0;
+            nextBtn.disabled = currentFlatIndex >= allChapters.length - 1;
+
+            // 更新按钮文字显示章节标题
+            if (!prevBtn.disabled) {
+                prevBtn.textContent = `← ${allChapters[currentFlatIndex - 1].title}`;
+            } else {
+                prevBtn.textContent = '← 上一章';
+            }
+
+            if (!nextBtn.disabled) {
+                nextBtn.textContent = `${allChapters[currentFlatIndex + 1].title} →`;
+            } else {
+                nextBtn.textContent = '下一章 →';
+            }
+        }
+
+        // ==================== 上一章 ====================
+        function prevChapter() {
+            if (currentFlatIndex > 0) {
+                loadChapter(currentFlatIndex - 1);
+            }
+        }
+
+        // ==================== 下一章 ====================
+        function nextChapter() {
+            if (currentFlatIndex < allChapters.length - 1) {
+                loadChapter(currentFlatIndex + 1);
+            }
+        }
+
+        // ==================== 关闭模态框 ====================
+        function closeModal() {
+            document.getElementById('novelModal').classList.remove('active');
+        }
+
+        // ==================== 点击模态框外部关闭 ====================
+        document.getElementById('novelModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ==================== 键盘翻页支持 ====================
+        document.addEventListener('keydown', function(e) {
+            if (!document.getElementById('novelModal').classList.contains('active')) {
+                return;
+            }
+
+            if (e.key === 'ArrowLeft') {
+                prevChapter();
+            } else if (e.key === 'ArrowRight') {
+                nextChapter();
+            } else if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // ==================== 页面加载完成后初始化 ====================
+        document.addEventListener('DOMContentLoaded', initNovelList);
+    </script>
+</body>
+</html>

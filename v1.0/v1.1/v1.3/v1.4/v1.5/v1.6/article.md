@@ -1,4 +1,4 @@
-# [System Log]: Earth Server v1.0 - The Awakening Protocol
+# [System Log]: Earth Server v1.3 - The Awakening Protocol
 
 > **Status:** `Running...`
 > **Current User:** `Via_Qiao1` (Observer & Player)

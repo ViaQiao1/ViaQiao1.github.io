@@ -1,4 +1,4 @@
-# 🕵️‍♀️ Psychological Analysis of the "Pseudo-Couple's" Black Screen Chat
+# [System Manifesto]:## ## # 🕵️‍♀️ Psychological Analysis of the "Pseudo-Couple's" Black Screen Chat
 ## （伪人夫妇的黑屏聊天心理学深度侧写）
 
 > **⚠️ BOSS SYSTEM ALERT: HIGH-DIMENSIONAL SCAN INITIATED**
